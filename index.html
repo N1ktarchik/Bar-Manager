@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Меню коктейлей | Бар "Весёлый Гофер"</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif; /* Более "менюшный" шрифт */
+            background-color: #1a1a1a; /* Тёмная тема */
+            color: #eaeaea;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 { text-align: center; color: #e67e22; font-size: 32px; text-transform: uppercase; letter-spacing: 2px; }
+        .separator { height: 2px; background-color: #e67e22; width: 100px; margin: 0 auto 30px; }
+        
+        .cocktail-list {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .cocktail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px dotted #444;
+            padding-bottom: 15px;
+        }
+        .cocktail-info {
+            flex-grow: 1;
+            padding-right: 20px;
+        }
+        .cocktail-name { font-size: 20px; font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .cocktail-ingredients { font-size: 15px; color: #aaa; font-style: italic; }
+        .cocktail-price { font-size: 19px; font-weight: bold; color: #e67e22; white-space: nowrap; }
+        
+        .error { color: #e74c3c; text-align: center; margin-top: 30px; }
+        .empty { text-align: center; color: #777; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+    <h1>МЕНЮ КОКТЕЙЛЕЙ</h1>
+    <div class="separator"></div>
+
+    <div id="errorMsg" class="error"></div>
+    <div id="cocktailsContainer" class="cocktail-list">
+        </div>
+
+    <script>
+        // URL твоего бэкенда на Go
+        const API_URL = 'http://localhost:8080/api/cocktails';
+        const container = document.getElementById('cocktailsContainer');
+        const errorMsg = document.getElementById('errorMsg');
+
+        // Единственная функция - GET всех коктейлей (READ)
+        async function fetchCocktails() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Сервер не отвечает');
+                const cocktails = await response.json();
+                renderCocktails(cocktails);
+            } catch (error) {
+                errorMsg.textContent = 'Не удалось загрузить меню. Извините за неудобства.';
+                console.error(error);
+            }
+        }
+
+        // Красивая отрисовка в стиле меню
+        function renderCocktails(cocktails) {
+            container.innerHTML = '';
+            if (!cocktails || cocktails.length === 0) {
+                container.innerHTML = '<p class="empty">В данный момент меню обновляется.</p>';
+                return;
+            }
+
+            cocktails.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'cocktail-item';
+                div.innerHTML = `
+                    <div class="cocktail-info">
+                        <div class="cocktail-name">${c.name}</div>
+                        <div class="cocktail-ingredients">${c.ingredients}</div>
+                    </div>
+                    <div class="cocktail-price">${c.price} ₽</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Запускаем загрузку данных при открытии страницы
+        fetchCocktails();
+    </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в админ-панель</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 { text-align: center; color: #2c3e50; }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="number"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background-color: #2980b9; color: white; width: 100%; font-size: 16px; }
+        .btn-primary:hover { background-color: #3498db; }
+        .add-btn { background-color: #27ae60; color: white; width: 100%; }
+        .add-btn:hover { background-color: #2ecc71; }
+        .logout-btn { background-color: #7f8c8d; color: white; float: right; }
+        
+        .cocktail-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .cocktail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-top: 5px solid #27ae60;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .cocktail-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .cocktail-ingredients { font-size: 14px; color: #7f8c8d; margin-bottom: 10px; }
+        
+        .price-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .price-input { width: 80px !important; padding: 5px !important; text-align: center; }
+        .update-price-btn { background-color: #f39c12; color: white; padding: 5px 10px; }
+        .delete-btn { background-color: #c0392b; color: white; padding: 8px 12px; margin-top: 10px; }
+        
+        .error { color: #c0392b; text-align: center; margin-bottom: 15px; font-weight: bold; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        /* Классы для переключения экранов */
+        .hidden { display: none !important; }
+        #authScreen { max-width: 400px; margin: 100px auto 0; }
+    </style>
+</head>
+<body>
+
+    <div id="authScreen" class="card">
+        <h2>🔐 Вход в панель администратора</h2>
+        <div id="authError" class="error"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="adminPassword">Введите мастер-пароль:</label>
+                <input type="password" id="adminPassword" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-primary">Войти</button>
+        </form>
+    </div>
+
+    <div id="adminPanel" class="hidden">
+        <div class="header-container">
+            <h1>🍸 Управление барным меню</h1>
+            <button class="logout-btn" onclick="logout()">Выйти</button>
+        </div>
+
+        <div class="card">
+            <h3>Добавить новый коктейль</h3>
+            <form id="addForm">
+                <div class="form-group">
+                    <label for="name">Название:</label>
+                    <input type="text" id="name" placeholder="Например: Негрони" required>
+                </div>
+                <div class="form-group">
+                    <label for="ingredients">Ингредиенты:</label>
+                    <input type="text" id="ingredients" placeholder="Джин, Кампари, Красный вермут" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Цена (₽):</label>
+                    <input type="number" id="price" placeholder="650" required>
+                </div>
+                <button type="submit" class="add-btn">Добавить в меню</button>
+            </form>
+        </div>
+
+        <div id="globalError" class="error"></div>
+        <div id="cocktailsContainer" class="cocktail-list">
+            </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:8080/api';
+        
+        // DOM Элементы
+        const authScreen = document.getElementById('authScreen');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginForm = document.getElementById('loginForm');
+        const addForm = document.getElementById('addForm');
+        const container = document.getElementById('cocktailsContainer');
+        const globalError = document.getElementById('globalError');
+        const authError = document.getElementById('authError');
+
+        // Вспомогательная функция для заголовков с JWT токеном
+        function getAuthHeaders() {
+            const token = localStorage.getItem('admin_jwt');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        // Проверка ответа на 401 Unauthorized (если токен просрочен или невалиден)
+        function handleUnauthorized(response) {
+            if (response.status === 401) {
+                alert('Сессия истекла или вы не авторизованы. Пожалуйста, войдите снова.');
+                logout();
+                return true;
+            }
+            return false;
+        }
+
+        // --- ЛОГИКА АВТОРИЗАЦИИ ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+
+            try {
+                const response = await fetch(`${BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('admin_jwt', data.token); // Сохраняем токен на 24 часа
+                    loginForm.reset();
+                    checkAuth(); // Переключаем экран
+                } else {
+                    const errData = await response.json().catch(() => ({}));
+                    authError.textContent = errData.error || 'Неверный пароль!';
+                }
+            } catch (error) {
+                authError.textContent = 'Ошибка сети. Проверьте бэкенд.';
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('admin_jwt');
+            checkAuth();
+        }
+
+        function checkAuth() {
+            const token = localStorage.getItem('admin_jwt');
+            if (token) {
+                authScreen.classList.add('hidden');
+                adminPanel.classList.remove('hidden');
+                fetchCocktails(); // Загружаем данные только если авторизованы
+            } else {
+                authScreen.classList.remove('hidden');
+                adminPanel.classList.add('hidden');
+                container.innerHTML = '';
+            }
+        }
+
+        // --- ЛОГИКА CRUD ---
+        async function fetchCocktails() {
+            try {
+                const response = await fetch(`${BASE_URL}/cocktails`);
+                if (!response.ok) throw new Error('Ошибка сервера');
+                const cocktails = await response.json();
+                renderCocktails(cocktails);
+            } catch (error) {
+                globalError.textContent = 'Не удалось загрузить меню. Проверьте подключение.';
+            }
+        }
+
+        function renderCocktails(cocktails) {
+            container.innerHTML = '';
+            if (!cocktails || cocktails.length === 0) {
+                container.innerHTML = '<p>Меню пустое.</p>';
+                return;
+            }
+
+            cocktails.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'cocktail-item';
+                div.innerHTML = `
+                    <div>
+                        <div class="cocktail-name">${c.name}</div>
+                        <div class="cocktail-ingredients">${c.ingredients}</div>
+                        <div class="price-controls">
+                            <span>Цена: </span>
+                            <input type="number" id="price-${c.id}" class="price-input" value="${c.price}">
+                            <span>₽</span>
+                            <button class="update-price-btn" onclick="updatePrice('${c.id}')">Обновить</button>
+                        </div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteCocktail('${c.id}')">Удалить из меню</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        addForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newCocktail = {
+                name: document.getElementById('name').value,
+                ingredients: document.getElementById('ingredients').value,
+                price: parseInt(document.getElementById('price').value)
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/cocktails`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(newCocktail)
+                });
+
+                if (handleUnauthorized(response)) return;
+
+                if (response.ok) {
+                    addForm.reset();
+                    fetchCocktails();
+                } else {
+                    globalError.textContent = 'Ошибка при добавлении коктейля.';
+                }
+            } catch (error) { globalError.textContent = 'Ошибка сети.'; }
+        });
+
+        async function updatePrice(id) {
+            const priceInput = document.getElementById(`price-${id}`);
+            const newPrice = parseInt(priceInput.value);
+
+            try {
+                const response = await fetch(`${BASE_URL}/cocktails/${id}/price`, {
+                    method: 'PATCH',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ price: newPrice })
+                });
+
+                if (handleUnauthorized(response)) return;
+
+                if (response.ok) {
+                    alert('Цена успешно обновлена!');
+                    fetchCocktails();
+                } else { alert('Не удалось обновить цену.'); }
+            } catch (error) { console.error(error); }
+        }
+
+        async function deleteCocktail(id) {
+            if (!confirm('Удалить этот коктейль?')) return;
+            try {
+                const response = await fetch(`${BASE_URL}/cocktails/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (handleUnauthorized(response)) return;
+
+                if (response.ok) { fetchCocktails(); }
+            } catch (error) { console.error(error); }
+        }
+
+        // Запуск проверки при загрузке страницы
+        checkAuth();
+    </script>
+</body>
+</html>
