@@ -44,3 +44,10 @@ func INTERNAL_SERVER_ERR() *ErrorApp {
 		Message: "Server error",
 	}
 }
+
+func BAD_REQUEST_ERR() *ErrorApp {
+	return &ErrorApp{
+		Code:    http.StatusBadRequest,
+		Message: "Bad request",
+	}
+}

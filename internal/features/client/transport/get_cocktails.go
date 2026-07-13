@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (h *BarClientHandlerHTTP) GetCocktails(w http.ResponseWriter, r *http.Request) {
+func (h *BarClientHandlerHTTP) GetCocktailsHandler(w http.ResponseWriter, r *http.Request) {
 	h.log.Debug("new request GET /api/cocktails",
 		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
 
