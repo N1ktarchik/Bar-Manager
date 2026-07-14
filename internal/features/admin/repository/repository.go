@@ -6,13 +6,13 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type BarClientRepository struct {
+type BarAdminRepository struct {
 	pool *pgxpool.Pool
 	log  *slog.Logger
 }
 
-func NewBarClientRepository(pool *pgxpool.Pool, log *slog.Logger) *BarClientRepository {
-	return &BarClientRepository{
+func NewBarAdminRepository(pool *pgxpool.Pool, log *slog.Logger) *BarAdminRepository {
+	return &BarAdminRepository{
 		pool: pool,
 		log:  log,
 	}

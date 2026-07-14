@@ -13,7 +13,7 @@ func (h *BarAdminHandlerHTTP) DeleteCocktail(w http.ResponseWriter, r *http.Requ
 
 	id := r.PathValue("id")
 
-	if err := h.service.DeleteCocktail(r.Context(), id); err != nil {
+	if err := h.barService.DeleteCocktail(r.Context(), id); err != nil {
 		response.RespondWithError(w, err)
 		return
 	}

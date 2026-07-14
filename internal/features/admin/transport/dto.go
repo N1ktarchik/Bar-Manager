@@ -9,6 +9,10 @@ type cocktailDTO struct {
 	Price       int    `json:"price"`
 }
 
+type authDTO struct {
+	Password string `json:"password"`
+}
+
 func (c *cocktailDTO) ToDomain() *domain.Cocktail {
 	return &domain.Cocktail{
 		Id:          c.Id,

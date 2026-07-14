@@ -23,13 +23,14 @@ func (h *BarAdminHandlerHTTP) UpdatePriceHandler(w http.ResponseWriter, r *http.
 
 	id := r.PathValue("id")
 
-	updatedCocktail, err := h.service.UpdatePrice(r.Context(), id, userData.Price)
+	updatedCocktail, err := h.barService.UpdatePrice(r.Context(), id, userData.Price)
 	if err != nil {
 		response.RespondWithError(w, err)
 		return
 	}
 
-	h.log.Info("The price of a cocktail has been updated", slog.Int("ID", updatedCocktail.Id),
+	h.log.Info("The price of a cocktail has been updated",
+		slog.Int("ID", updatedCocktail.Id),
 		slog.Int("new price", updatedCocktail.Price),
 		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
 

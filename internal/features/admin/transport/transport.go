@@ -7,8 +7,9 @@ import (
 )
 
 type BarAdminHandlerHTTP struct {
-	service BarAdminService
-	log     *slog.Logger
+	barService  BarAdminService
+	authService AuthService
+	log         *slog.Logger
 }
 
 type BarAdminService interface {
@@ -17,9 +18,14 @@ type BarAdminService interface {
 	DeleteCocktail(ctx context.Context, id string) error
 }
 
-func NewBarTransportHTTP(service BarAdminService, log *slog.Logger) *BarAdminHandlerHTTP {
+type AuthService interface {
+	CreateJWT(password string) (string, error)
+}
+
+func NewBarTransportHTTP(barService BarAdminService, authService AuthService, log *slog.Logger) *BarAdminHandlerHTTP {
 	return &BarAdminHandlerHTTP{
-		service: service,
-		log:     log,
+		barService:  barService,
+		authService: authService,
+		log:         log,
 	}
 }

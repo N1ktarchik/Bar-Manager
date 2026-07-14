@@ -31,7 +31,7 @@ func IsErrorApp(err error) (*ErrorApp, bool) {
 	return nil, false
 }
 
-func INVALID_JWT() *ErrorApp {
+func INVALID_JWT_ERR() *ErrorApp {
 	return &ErrorApp{
 		Code:    http.StatusBadRequest,
 		Message: "Invalid Json-Web Token",
@@ -49,5 +49,33 @@ func BAD_REQUEST_ERR() *ErrorApp {
 	return &ErrorApp{
 		Code:    http.StatusBadRequest,
 		Message: "Bad request",
+	}
+}
+
+func SHORT_NAME_ERR() *ErrorApp {
+	return &ErrorApp{
+		Code:    http.StatusBadRequest,
+		Message: "The name of the cocktail is too short",
+	}
+}
+
+func INVALID_PRICE_ERR() *ErrorApp {
+	return &ErrorApp{
+		Code:    http.StatusBadRequest,
+		Message: "The price of a cocktail cannot be less than or equal to zero",
+	}
+}
+
+func INVALID_ID_ERR() *ErrorApp {
+	return &ErrorApp{
+		Code:    http.StatusBadRequest,
+		Message: "The ID of a cocktail cannot be less than or equal to zero",
+	}
+}
+
+func ID_NOT_FAUND_ERR() *ErrorApp {
+	return &ErrorApp{
+		Code:    http.StatusBadRequest,
+		Message: "ID not faund",
 	}
 }

@@ -8,11 +8,11 @@ import (
 	"time"
 )
 
-func (h *BarAdminHandlerHTTP) AddCocktailHandler(w http.ResponseWriter, r *http.Request) {
-	h.log.Debug("new request POST /api/cocktails",
+func (h *BarAdminHandlerHTTP) LoginAdmin(w http.ResponseWriter, r *http.Request) {
+	h.log.Debug("new request POST /api/auth/login",
 		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
 
-	userData := &cocktailDTO{}
+	userData := &authDTO{}
 
 	if err := request.DecodeAndValidate(r, userData); err != nil {
 		h.log.Debug("parse request error", slog.Any("err", err), slog.Any("Body:", r.Body))
@@ -21,15 +21,14 @@ func (h *BarAdminHandlerHTTP) AddCocktailHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	cocktail, err := h.barService.AddCocktail(r.Context(), userData.ToDomain())
+	jwt, err := h.authService.CreateJWT(userData.Password)
 	if err != nil {
 		response.RespondWithError(w, err)
 		return
 	}
 
-	h.log.Info("A new cocktail has been added", slog.Int("ID", cocktail.Id),
+	h.log.Info("The new admin has been authorized",
 		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
 
-	response.RespondWithJSON(w, http.StatusCreated, cocktail)
-
+	response.RespondWithJWT(w, http.StatusOK, jwt)
 }
