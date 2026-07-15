@@ -6,12 +6,10 @@ import (
 
 	"context"
 	"log/slog"
-	"time"
 )
 
 func (r *BarAdminRepository) AddCocktail(ctx context.Context, cocktail *domain.Cocktail) (*domain.Cocktail, error) {
-	r.log.Debug("new request to DB (AddCocktail)",
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
+	r.log.Debug("new request to DB (AddCocktail)")
 
 	query := `INSERT INTO menu (name,ingridients,price) 
 			VALUES ($1,$2,$3) 
@@ -28,8 +26,6 @@ func (r *BarAdminRepository) AddCocktail(ctx context.Context, cocktail *domain.C
 
 	domainCocktail := modelToDomain(savedCocktail)
 
-	r.log.Debug("cocktail successfully created in database", slog.Any("ID", savedCocktail.Id),
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
-
+	r.log.Debug("cocktail successfully created in database", slog.Any("ID", savedCocktail.Id))
 	return &domainCocktail, nil
 }

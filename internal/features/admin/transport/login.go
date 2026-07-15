@@ -5,13 +5,10 @@ import (
 	"N1ktarchik/Bar-Manager/internal/core/transport/response"
 	"log/slog"
 	"net/http"
-	"time"
 )
 
 func (h *BarAdminHandlerHTTP) LoginAdmin(w http.ResponseWriter, r *http.Request) {
-	h.log.Debug("new request POST /api/auth/login",
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
-
+	h.log.Debug("new request POST /api/auth/login")
 	userData := &authDTO{}
 
 	if err := request.DecodeAndValidate(r, userData); err != nil {
@@ -27,8 +24,7 @@ func (h *BarAdminHandlerHTTP) LoginAdmin(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	h.log.Info("The new admin has been authorized",
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
+	h.log.Info("The new admin has been authorized")
 
 	response.RespondWithJWT(w, http.StatusOK, jwt)
 }

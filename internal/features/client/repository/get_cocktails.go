@@ -5,12 +5,10 @@ import (
 	"N1ktarchik/Bar-Manager/internal/core/errors"
 	"context"
 	"log/slog"
-	"time"
 )
 
 func (r *BarClientRepository) GetCocktails(ctx context.Context) ([]domain.Cocktail, error) {
-	r.log.Debug("new request to DB (GetCocktails)",
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
+	r.log.Debug("new request to DB (GetCocktails)")
 
 	query := `SELECT id,name,ingridients,price FROM menu`
 

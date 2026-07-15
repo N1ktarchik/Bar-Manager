@@ -5,12 +5,10 @@ import (
 	"N1ktarchik/Bar-Manager/internal/core/errors"
 	"context"
 	"log/slog"
-	"time"
 )
 
 func (r *BarAdminRepository) UpdatePrice(ctx context.Context, id int, price int) (*domain.Cocktail, error) {
-	r.log.Debug("new request to DB (UpdatePrice)",
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
+	r.log.Debug("new request to DB (UpdatePrice)")
 
 	query := `UPDATE menu SET price=$1 WHERE id=$2
 			RETURNING id,name,ingridients,price`
@@ -27,8 +25,7 @@ func (r *BarAdminRepository) UpdatePrice(ctx context.Context, id int, price int)
 	domainCocktail := modelToDomain(updatedCocktail)
 
 	r.log.Debug("price of cocktail successfully updated in database", slog.Any("ID", updatedCocktail.Id),
-		slog.Any("price", updatedCocktail.Price),
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
+		slog.Any("price", updatedCocktail.Price))
 
 	return &domainCocktail, nil
 }

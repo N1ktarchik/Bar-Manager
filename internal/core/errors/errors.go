@@ -79,3 +79,24 @@ func ID_NOT_FAUND_ERR() *ErrorApp {
 		Message: "ID not faund",
 	}
 }
+
+func INVALID_PASSWORD_ERR() *ErrorApp {
+	return &ErrorApp{
+		Code:    http.StatusBadRequest,
+		Message: "Password is not valid",
+	}
+}
+
+func INVALID_SIGNING_METHOD_ERR() *ErrorApp {
+	return &ErrorApp{
+		Code:    http.StatusBadRequest,
+		Message: "Unexpected signing method",
+	}
+}
+
+func UNAUTHORIZED_ERR() *ErrorApp {
+	return &ErrorApp{
+		Code:    http.StatusUnauthorized,
+		Message: "You have been Unauthorized",
+	}
+}

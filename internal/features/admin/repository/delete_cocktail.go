@@ -4,12 +4,10 @@ import (
 	"N1ktarchik/Bar-Manager/internal/core/errors"
 	"context"
 	"log/slog"
-	"time"
 )
 
 func (r *BarAdminRepository) DeleteCocktail(ctx context.Context, id int) error {
-	r.log.Debug("new request to DB (DeleteCocktail)",
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
+	r.log.Debug("new request to DB (DeleteCocktail)")
 
 	query := `DELETE FROM menu WHERE id=$1`
 
@@ -25,8 +23,7 @@ func (r *BarAdminRepository) DeleteCocktail(ctx context.Context, id int) error {
 		return errors.ID_NOT_FAUND_ERR()
 	}
 
-	r.log.Debug("cocktail successfully deleted in database",
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
+	r.log.Debug("cocktail successfully deleted in database")
 
 	return nil
 }

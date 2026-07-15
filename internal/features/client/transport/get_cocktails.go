@@ -4,12 +4,10 @@ import (
 	"N1ktarchik/Bar-Manager/internal/core/transport/response"
 	"log/slog"
 	"net/http"
-	"time"
 )
 
 func (h *BarClientHandlerHTTP) GetCocktailsHandler(w http.ResponseWriter, r *http.Request) {
-	h.log.Debug("new request GET /api/cocktails",
-		slog.Any("time:", time.Now().UTC().Format("2006-01-02 15:04:05")))
+	h.log.Debug("new request GET /api/cocktails")
 
 	cocktails, err := h.service.GetCocktails(r.Context())
 
