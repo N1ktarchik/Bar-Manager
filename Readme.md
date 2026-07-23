@@ -40,28 +40,30 @@
 Убедитесь, что у вас установлены **Docker** и **Make**.
 
 1. **Клонируйте репозиторий:**
+
    ```bash
    git clone [https://github.com/N1ktarchik/Bar-Manager.git](https://github.com/N1ktarchik/Bar-Manager.git)
    cd Bar-Manager
+   ```
 
-```
+
 
 2. **Настройте переменные окружения:**
 Скопируйте пример конфига и установите свои значения (особенно `ADMIN_PASSWORD` и `SECRET_KEY`):
-```bash
-cp .env.example .env
 
-```
+    ```bash
+    cp .env.example .env
+
+    ```
 
 
 3. **Запустите проект:**
 Одной командой `make` мы собираем приложение, поднимаем базу данных и накатываем миграции:
 
+    ```bash
+    make up
 
-```bash
-make up
-
-```
+    ```
 
 
 4. **Откройте приложение в браузере:**
