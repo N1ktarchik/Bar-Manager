@@ -10,6 +10,7 @@ import (
 
 func (h *BarAdminHandlerHTTP) DeleteCocktail(w http.ResponseWriter, r *http.Request) {
 	h.log.Debug("new request DELETE /api/cocktails/{id}")
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 
