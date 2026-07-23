@@ -13,7 +13,7 @@ func (r *BarAdminRepository) AddCocktail(ctx context.Context, cocktail *domain.C
 
 	query := `INSERT INTO menu (name,ingridients,price) 
 			VALUES ($1,$2,$3) 
-			RETURNIG id,name,ingridients,price`
+			RETURNING id,name,ingridients,price`
 
 	savedCocktail := cocktailModel{}
 

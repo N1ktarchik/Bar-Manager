@@ -5,67 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход в админ-панель</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; max-width: 900px; margin: 0 auto; padding: 20px; }
         h1, h2 { text-align: center; color: #2c3e50; }
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="number"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+        input[type="text"], input[type="number"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; }
         .btn-primary { background-color: #2980b9; color: white; width: 100%; font-size: 16px; }
         .btn-primary:hover { background-color: #3498db; }
         .add-btn { background-color: #27ae60; color: white; width: 100%; }
         .add-btn:hover { background-color: #2ecc71; }
         .logout-btn { background-color: #7f8c8d; color: white; float: right; }
         
-        .cocktail-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .cocktail-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-top: 5px solid #27ae60;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+        .cocktail-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .cocktail-item { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-top: 5px solid #27ae60; display: flex; flex-direction: column; justify-content: space-between; }
         .cocktail-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
         .cocktail-ingredients { font-size: 14px; color: #7f8c8d; margin-bottom: 10px; }
         
-        .price-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+        .price-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .price-input { width: 80px !important; padding: 5px !important; text-align: center; }
         .update-price-btn { background-color: #f39c12; color: white; padding: 5px 10px; }
         .delete-btn { background-color: #c0392b; color: white; padding: 8px 12px; margin-top: 10px; }
@@ -73,7 +31,6 @@
         .error { color: #c0392b; text-align: center; margin-bottom: 15px; font-weight: bold; }
         .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
-        /* Классы для переключения экранов */
         .hidden { display: none !important; }
         #authScreen { max-width: 400px; margin: 100px auto 0; }
     </style>
@@ -118,14 +75,12 @@
         </div>
 
         <div id="globalError" class="error"></div>
-        <div id="cocktailsContainer" class="cocktail-list">
-            </div>
+        <div id="cocktailsContainer" class="cocktail-list"></div>
     </div>
 
     <script>
-        const BASE_URL = 'http://localhost:8080/api';
+        const BASE_URL = '/api';
         
-        // DOM Элементы
         const authScreen = document.getElementById('authScreen');
         const adminPanel = document.getElementById('adminPanel');
         const loginForm = document.getElementById('loginForm');
@@ -134,7 +89,6 @@
         const globalError = document.getElementById('globalError');
         const authError = document.getElementById('authError');
 
-        // Вспомогательная функция для заголовков с JWT токеном
         function getAuthHeaders() {
             const token = localStorage.getItem('admin_jwt');
             return {
@@ -143,7 +97,6 @@
             };
         }
 
-        // Проверка ответа на 401 Unauthorized (если токен просрочен или невалиден)
         function handleUnauthorized(response) {
             if (response.status === 401) {
                 alert('Сессия истекла или вы не авторизованы. Пожалуйста, войдите снова.');
@@ -153,7 +106,6 @@
             return false;
         }
 
-        // --- ЛОГИКА АВТОРИЗАЦИИ ---
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = document.getElementById('adminPassword').value;
@@ -167,9 +119,9 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    localStorage.setItem('admin_jwt', data.token); // Сохраняем токен на 24 часа
+                    localStorage.setItem('admin_jwt', data.token);
                     loginForm.reset();
-                    checkAuth(); // Переключаем экран
+                    checkAuth();
                 } else {
                     const errData = await response.json().catch(() => ({}));
                     authError.textContent = errData.error || 'Неверный пароль!';
@@ -189,7 +141,7 @@
             if (token) {
                 authScreen.classList.add('hidden');
                 adminPanel.classList.remove('hidden');
-                fetchCocktails(); // Загружаем данные только если авторизованы
+                fetchCocktails();
             } else {
                 authScreen.classList.remove('hidden');
                 adminPanel.classList.add('hidden');
@@ -197,12 +149,21 @@
             }
         }
 
-        // --- ЛОГИКА CRUD ---
         async function fetchCocktails() {
             try {
                 const response = await fetch(`${BASE_URL}/cocktails`);
                 if (!response.ok) throw new Error('Ошибка сервера');
-                const cocktails = await response.json();
+                
+                const responseData = await response.json();
+                
+                // Умное извлечение массива (защита от обертки ответа)
+                let cocktails = [];
+                if (Array.isArray(responseData)) {
+                    cocktails = responseData;
+                } else if (responseData && typeof responseData === 'object') {
+                    cocktails = responseData.data || responseData.items || responseData.cocktails || responseData.result || [];
+                }
+
                 renderCocktails(cocktails);
             } catch (error) {
                 globalError.textContent = 'Не удалось загрузить меню. Проверьте подключение.';
@@ -211,7 +172,7 @@
 
         function renderCocktails(cocktails) {
             container.innerHTML = '';
-            if (!cocktails || cocktails.length === 0) {
+            if (!Array.isArray(cocktails) || cocktails.length === 0) {
                 container.innerHTML = '<p>Меню пустое.</p>';
                 return;
             }
@@ -296,7 +257,6 @@
             } catch (error) { console.error(error); }
         }
 
-        // Запуск проверки при загрузке страницы
         checkAuth();
     </script>
 </body>

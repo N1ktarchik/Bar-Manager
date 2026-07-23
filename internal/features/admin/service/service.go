@@ -14,6 +14,7 @@ type BarAdminService struct {
 type BarAdminRepository interface {
 	AddCocktail(ctx context.Context, cocktail *domain.Cocktail) (*domain.Cocktail, error)
 	DeleteCocktail(ctx context.Context, id int) error
+	UpdatePrice(ctx context.Context, id int, price int) (*domain.Cocktail, error)
 }
 
 func NewBarAdminService(repository BarAdminRepository, log *slog.Logger) *BarAdminService {

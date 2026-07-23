@@ -11,7 +11,7 @@ func hash(password string) string {
 	return hex.EncodeToString(hashPass[:])
 }
 
-func (s *JWTservice) Compare(password string) bool {
+func (s *JWTservice) compare(password string) bool {
 	hashPass := hash(password)
 
 	return s.password == hashPass

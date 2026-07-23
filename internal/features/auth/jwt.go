@@ -11,7 +11,7 @@ import (
 func (s *JWTservice) CreateJWT(password string) (string, error) {
 	s.log.Debug("creating new JWT")
 
-	if !s.Compare(password) {
+	if !s.compare(password) {
 		s.log.Debug("invalid password provided, JWT creation failed")
 		return "", errors.INVALID_PASSWORD_ERR()
 	}

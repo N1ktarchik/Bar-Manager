@@ -22,7 +22,7 @@ type AuthService interface {
 	CreateJWT(password string) (string, error)
 }
 
-func NewBarTransportHTTP(barService BarAdminService, authService AuthService, log *slog.Logger) *BarAdminHandlerHTTP {
+func NewBarAdminTransportHTTP(barService BarAdminService, authService AuthService, log *slog.Logger) *BarAdminHandlerHTTP {
 	return &BarAdminHandlerHTTP{
 		barService:  barService,
 		authService: authService,

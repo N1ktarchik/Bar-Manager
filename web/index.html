@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Меню коктейлей | Бар "Весёлый Джэк"</title>
+    <title>Меню коктейлей | Бар "Весёлый Гофер"</title>
     <style>
         body {
-            font-family: 'Georgia', serif; /* Более "менюшный" шрифт */
-            background-color: #1a1a1a; /* Тёмная тема */
+            font-family: 'Georgia', serif;
+            background-color: #1a1a1a;
             color: #eaeaea;
             max-width: 600px;
             margin: 0 auto;
@@ -16,22 +16,9 @@
         h1 { text-align: center; color: #e67e22; font-size: 32px; text-transform: uppercase; letter-spacing: 2px; }
         .separator { height: 2px; background-color: #e67e22; width: 100px; margin: 0 auto 30px; }
         
-        .cocktail-list {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-        .cocktail-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px dotted #444;
-            padding-bottom: 15px;
-        }
-        .cocktail-info {
-            flex-grow: 1;
-            padding-right: 20px;
-        }
+        .cocktail-list { display: flex; flex-direction: column; gap: 25px; }
+        .cocktail-item { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dotted #444; padding-bottom: 15px; }
+        .cocktail-info { flex-grow: 1; padding-right: 20px; }
         .cocktail-name { font-size: 20px; font-weight: bold; color: #fff; margin-bottom: 5px; }
         .cocktail-ingredients { font-size: 15px; color: #aaa; font-style: italic; }
         .cocktail-price { font-size: 19px; font-weight: bold; color: #e67e22; white-space: nowrap; }
@@ -46,21 +33,29 @@
     <div class="separator"></div>
 
     <div id="errorMsg" class="error"></div>
-    <div id="cocktailsContainer" class="cocktail-list">
-        </div>
+    <div id="cocktailsContainer" class="cocktail-list"></div>
 
     <script>
-        // URL твоего бэкенда на Go
-        const API_URL = 'http://localhost:8080/api/cocktails';
+        const API_URL = '/api/cocktails';
         const container = document.getElementById('cocktailsContainer');
         const errorMsg = document.getElementById('errorMsg');
 
-        // Единственная функция - GET всех коктейлей (READ)
         async function fetchCocktails() {
             try {
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error('Сервер не отвечает');
-                const cocktails = await response.json();
+                
+                const responseData = await response.json();
+                
+                // Умное извлечение массива (защита от обертки ответа)
+                let cocktails = [];
+                if (Array.isArray(responseData)) {
+                    cocktails = responseData;
+                } else if (responseData && typeof responseData === 'object') {
+                    // Ищем массив в стандартных полях
+                    cocktails = responseData.data || responseData.items || responseData.cocktails || responseData.result || [];
+                }
+
                 renderCocktails(cocktails);
             } catch (error) {
                 errorMsg.textContent = 'Не удалось загрузить меню. Извините за неудобства.';
@@ -68,10 +63,10 @@
             }
         }
 
-        // Красивая отрисовка в стиле меню
         function renderCocktails(cocktails) {
             container.innerHTML = '';
-            if (!cocktails || cocktails.length === 0) {
+            // Проверка на то, что cocktails действительно массив после распаковки
+            if (!Array.isArray(cocktails) || cocktails.length === 0) {
                 container.innerHTML = '<p class="empty">В данный момент меню обновляется.</p>';
                 return;
             }
@@ -90,7 +85,6 @@
             });
         }
 
-        // Запускаем загрузку данных при открытии страницы
         fetchCocktails();
     </script>
 </body>

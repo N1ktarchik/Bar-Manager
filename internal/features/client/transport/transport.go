@@ -1,8 +1,8 @@
 package transport
 
 import (
+	"N1ktarchik/Bar-Manager/internal/core/domain"
 	"context"
-	"hello/Desktop/pet-projects/bar-manager/internal/core/domain"
 	"log/slog"
 )
 
@@ -15,7 +15,7 @@ type BarClientService interface {
 	GetCocktails(ctx context.Context) ([]domain.Cocktail, error)
 }
 
-func NewBarTransportHTTP(service BarClientService, log *slog.Logger) *BarClientHandlerHTTP {
+func NewBarClientTransportHTTP(service BarClientService, log *slog.Logger) *BarClientHandlerHTTP {
 	return &BarClientHandlerHTTP{
 		service: service,
 		log:     log,

@@ -1,8 +1,8 @@
 package response
 
 import (
+	"N1ktarchik/Bar-Manager/internal/core/errors"
 	"encoding/json"
-	"hello/Desktop/pet-projects/bar-manager/internal/core/errors"
 	"net/http"
 )
 
