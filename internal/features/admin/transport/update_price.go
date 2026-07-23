@@ -5,6 +5,8 @@ import (
 	"N1ktarchik/Bar-Manager/internal/core/transport/response"
 	"log/slog"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func (h *BarAdminHandlerHTTP) UpdatePriceHandler(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +21,8 @@ func (h *BarAdminHandlerHTTP) UpdatePriceHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	id := r.PathValue("id")
+	vars := mux.Vars(r)
+	id := vars["id"]
 
 	updatedCocktail, err := h.barService.UpdatePrice(r.Context(), id, userData.Price)
 	if err != nil {

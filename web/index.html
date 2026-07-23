@@ -47,14 +47,8 @@
                 
                 const responseData = await response.json();
                 
-                // Умное извлечение массива (защита от обертки ответа)
-                let cocktails = [];
-                if (Array.isArray(responseData)) {
-                    cocktails = responseData;
-                } else if (responseData && typeof responseData === 'object') {
-                    // Ищем массив в стандартных полях
-                    cocktails = responseData.data || responseData.items || responseData.cocktails || responseData.result || [];
-                }
+                // Достаем массив из пустого ключа "", как отдает бэкенд: {"": [...]}
+                const cocktails = responseData[""] || [];
 
                 renderCocktails(cocktails);
             } catch (error) {
@@ -65,21 +59,25 @@
 
         function renderCocktails(cocktails) {
             container.innerHTML = '';
-            // Проверка на то, что cocktails действительно массив после распаковки
             if (!Array.isArray(cocktails) || cocktails.length === 0) {
                 container.innerHTML = '<p class="empty">В данный момент меню обновляется.</p>';
                 return;
             }
 
             cocktails.forEach(c => {
+                // Оператор ?? реагирует только на null или undefined, пропуская пустые строки и нули
+                const name = c.Name ?? c.name ?? 'Без названия';
+                const ingredients = c.Ingridients ?? c.ingridients ?? '';
+                const price = c.Price ?? c.price ?? 0;
+
                 const div = document.createElement('div');
                 div.className = 'cocktail-item';
                 div.innerHTML = `
                     <div class="cocktail-info">
-                        <div class="cocktail-name">${c.name}</div>
-                        <div class="cocktail-ingredients">${c.ingredients}</div>
+                        <div class="cocktail-name">${name}</div>
+                        <div class="cocktail-ingredients">${ingredients}</div>
                     </div>
-                    <div class="cocktail-price">${c.price} ₽</div>
+                    <div class="cocktail-price">${price} ₽</div>
                 `;
                 container.appendChild(div);
             });

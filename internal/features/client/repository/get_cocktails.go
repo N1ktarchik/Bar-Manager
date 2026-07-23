@@ -13,7 +13,7 @@ func (r *BarClientRepository) GetCocktails(ctx context.Context) ([]domain.Cockta
 	query := `SELECT id,name,ingridients,price FROM menu`
 
 	rows, err := r.pool.Query(ctx, query)
-	cocktails := make([]domain.Cocktail, 10)
+	cocktails := make([]domain.Cocktail, 0, 10)
 
 	for rows.Next() {
 		var c cocktailModel
